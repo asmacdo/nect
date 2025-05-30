@@ -55,13 +55,13 @@ runs:
           echo "Repository: $owner_repo"
           echo "PR number: $pr_num"
 
-          # gh repo clone "$owner_repo" "$inputs.name"
-          # cd "$inputs.name"
-          # git fetch origin pull/$pr_num/head:pr-branch
-          # git checkout pr-branch
-          # echo "Running source_install: ${{ inputs.source_install }}"
-          # eval "${{ inputs.source_install }}"
-          # cd ..
+          gh repo clone "$owner_repo" "${{ inputs.name }}"
+          cd "${{ inputs.name }}"
+          git fetch origin pull/$pr_num/head:pr-branch
+          git checkout pr-branch
+          echo "Running source_install: ${{ inputs.source_install }}"
+          eval "${{ inputs.source_install }}"
+          cd ..
         else
           echo "No marker found"
           # eval "${{ inputs.default_install }}"
