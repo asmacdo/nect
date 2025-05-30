@@ -1,0 +1,66 @@
+name: nect
+description: Install dependencies from cross-repo PRs based on marker
+inputs:
+  name:
+    description: Repository name (e.g., dandi-cli)
+    required: true
+  marker:
+    description: Marker to look for in PR comments (e.g., requires_cli_pr)
+    required: true
+  default_install:
+    description: Fallback install command if no PR marker is found
+    required: false
+    default: ""
+  source_install:
+    description: Install command to run after checking out the PR branch
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install prerequisites
+      shell: bash
+      run: |
+        sudo apt-get update && sudo apt-get install -y jq
+        echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+    - name: Extract PR comments
+      id: extract-comments
+      shell: bash
+      run: |
+        comments=$(gh pr view ${{ github.event.pull_request.number }} --json comments -q ".comments[].body")
+        echo "comments<<EOF" >> $GITHUB_ENV
+        echo "$comments" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+
+    - name: Process ${{ inputs.name }}
+      shell: bash
+      run: |
+        echo "Looking for marker: ${{ inputs.marker }} in PR comments"
+        match=$(echo "$comments" | grep -i "${{ inputs.marker }}" | head -1 || true)
+
+        if [[ -n "$match" ]]; then
+          echo "Marker found: $match"
+          pr_url=$(echo "$match" | grep -oE 'https[^ ]+' || true)
+          if [[ -z "$pr_url" ]]; then
+            pr_number=$(echo "$match" | grep -oE '[0-9]+' | head -1)
+            pr_url="https://github.com/${{ github.repository_owner }}/${{ inputs.name }}/pull/$pr_number"
+          fi
+          echo "PR URL: $pr_url"
+          owner_repo=$(echo "$pr_url" | cut -d/ -f4,5)
+          pr_num=$(echo "$pr_url" | cut -d/ -f7)
+
+          gh repo clone "$owner_repo" "$inputs.name"
+          cd "$inputs.name"
+          git fetch origin pull/$pr_num/head:pr-branch
+          git checkout pr-branch
+          echo "Running source_install: ${{ inputs.source_install }}"
+          eval "${{ inputs.source_install }}"
+          cd ..
+        elif [[ "${{ inputs.default_install }}" != "" ]]; then
+          echo "No marker found. Running default install: ${{ inputs.default_install }}"
+          eval "${{ inputs.default_install }}"
+        else
+          echo "No marker and no default install provided for ${{ inputs.name }}"
+        fi
+

@@ -1,0 +1,29 @@
+name: Cross-Repo Install
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dandi-cli
+        uses: asmacdo/nect@main
+        with:
+          name: dandi-cli
+          marker: REQUIRES_CLI_PR
+          default_install: pip install "dandi[test] @ git+https://github.com/dandi/dandi-cli"
+          source_install: pip install -e .[test]
+
+      - name: Install dandi-schema
+        uses: asmacdo/nect@main
+        with:
+          name: dandi-schema
+          marker: REQUIRES_SCHEMA_PR
+          # no default install, as its picked up by this repo's requirements.txt
+          source_install: pip install -e .[test]
+
