@@ -43,8 +43,8 @@ runs:
           echo "Marker found: $match"
           pr_url=$(echo "$match" | grep -oE 'https[^ ]+' || true)
           if [[ -z "$pr_url" ]]; then
-            pr_number=$(echo "$match" | grep -oE '[0-9]+' | head -1)
-            pr_url="https://github.com/${{ github.repository_owner }}/${{ inputs.name }}/pull/$pr_number"
+            echo "Error: No URL found in marker. Full GitHub PR URL required."
+            exit 1
           fi
           echo "PR URL: $pr_url"
           owner_repo=$(echo "$pr_url" | cut -d/ -f4,5)
