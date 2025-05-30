@@ -44,14 +44,16 @@ runs:
 
         if [[ -n "$match" ]]; then
           echo "Marker found: $match"
-          # pr_url=$(echo "$match" | grep -oE 'https[^ ]+' || true)
-          # if [[ -z "$pr_url" ]]; then
-          #   echo "Error: No URL found in marker. Full GitHub PR URL required."
-          #   exit 1
-          # fi
-          # echo "PR URL: $pr_url"
-          # owner_repo=$(echo "$pr_url" | cut -d/ -f4,5)
-          # pr_num=$(echo "$pr_url" | cut -d/ -f7)
+          pr_url=$(echo "$match" | grep -oE 'https[^ ]+' || true)
+          if [[ -z "$pr_url" ]]; then
+            echo "Error: No URL found in marker. Full GitHub PR URL required."
+            exit 1
+          fi
+          echo "PR URL: $pr_url"
+          owner_repo=$(echo "$pr_url" | cut -d/ -f4,5)
+          pr_num=$(echo "$pr_url" | cut -d/ -f7)
+          echo "Repository: $owner_repo"
+          echo "PR number: $pr_num"
 
           # gh repo clone "$owner_repo" "$inputs.name"
           # cd "$inputs.name"
