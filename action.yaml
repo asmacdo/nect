@@ -56,7 +56,7 @@ runs:
           echo "Running source_install: ${{ inputs.source_install }}"
           eval "${{ inputs.source_install }}"
           cd ..
-        elif [[ "${{ inputs.default_install }}" != "" ]]; then
+        elif [[ -n "${{ inputs.default_install }}" ]]; then
           echo "No marker found. Running default install: ${{ inputs.default_install }}"
           eval "${{ inputs.default_install }}"
         else
