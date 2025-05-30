@@ -64,12 +64,11 @@ runs:
           cd ..
         else
           echo "No marker found"
-          # eval "${{ inputs.default_install }}"
+          if [[ -n "${{ inputs.default_install }}" ]]; then
+            echo "Running default install: ${{ inputs.default_install }}"
+            eval "${{ inputs.default_install }}"
+          else
+            echo "No default install provided for ${{ inputs.name }}"
+          fi
         fi
-        # elif [[ -n "${{ inputs.default_install }}" ]]; then
-        #   echo "No marker found. Running default install: ${{ inputs.default_install }}"
-        #   eval "${{ inputs.default_install }}"
-        # else
-        #   echo "No marker and no default install provided for ${{ inputs.name }}"
-        # fi
 
