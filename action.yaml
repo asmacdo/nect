@@ -27,7 +27,12 @@ runs:
       id: extract-comments
       shell: bash
       run: |
+        echo "PR number: ${{ github.event.pull_request.number }}"
+        echo "Fetching PR details..."
+        gh pr view ${{ github.event.pull_request.number }} --json comments
+        echo "Extracting comment bodies..."
         comments=$(gh pr view ${{ github.event.pull_request.number }} --json comments -q ".comments[].body")
+        echo "Raw comments output: '$comments'"
         echo "comments<<EOF" >> $GITHUB_ENV
         echo "$comments" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
