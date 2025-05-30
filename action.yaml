@@ -25,7 +25,8 @@ runs:
       shell: bash
       run: |
         sudo apt-get update && sudo apt-get install -y jq
-        echo "${{ inputs.token }}" | gh auth login --with-token
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
 
     - name: Extract PR comments
       id: extract-comments
@@ -35,6 +36,8 @@ runs:
         echo "comments<<EOF" >> $GITHUB_ENV
         echo "$comments" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
 
     - name: Process ${{ inputs.name }}
       shell: bash
@@ -66,4 +69,6 @@ runs:
         else
           echo "No marker and no default install provided for ${{ inputs.name }}"
         fi
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
 
