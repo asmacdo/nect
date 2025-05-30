@@ -36,30 +36,35 @@ runs:
       shell: bash
       run: |
         echo "Looking for marker: ${{ inputs.marker }} in PR comments"
+        echo "Comments: $comments"
         match=$(echo "$comments" | grep -i "${{ inputs.marker }}" | head -1 || true)
 
         if [[ -n "$match" ]]; then
           echo "Marker found: $match"
-          pr_url=$(echo "$match" | grep -oE 'https[^ ]+' || true)
-          if [[ -z "$pr_url" ]]; then
-            echo "Error: No URL found in marker. Full GitHub PR URL required."
-            exit 1
-          fi
-          echo "PR URL: $pr_url"
-          owner_repo=$(echo "$pr_url" | cut -d/ -f4,5)
-          pr_num=$(echo "$pr_url" | cut -d/ -f7)
+          # pr_url=$(echo "$match" | grep -oE 'https[^ ]+' || true)
+          # if [[ -z "$pr_url" ]]; then
+          #   echo "Error: No URL found in marker. Full GitHub PR URL required."
+          #   exit 1
+          # fi
+          # echo "PR URL: $pr_url"
+          # owner_repo=$(echo "$pr_url" | cut -d/ -f4,5)
+          # pr_num=$(echo "$pr_url" | cut -d/ -f7)
 
-          gh repo clone "$owner_repo" "$inputs.name"
-          cd "$inputs.name"
-          git fetch origin pull/$pr_num/head:pr-branch
-          git checkout pr-branch
-          echo "Running source_install: ${{ inputs.source_install }}"
-          eval "${{ inputs.source_install }}"
-          cd ..
-        elif [[ -n "${{ inputs.default_install }}" ]]; then
-          echo "No marker found. Running default install: ${{ inputs.default_install }}"
-          eval "${{ inputs.default_install }}"
+          # gh repo clone "$owner_repo" "$inputs.name"
+          # cd "$inputs.name"
+          # git fetch origin pull/$pr_num/head:pr-branch
+          # git checkout pr-branch
+          # echo "Running source_install: ${{ inputs.source_install }}"
+          # eval "${{ inputs.source_install }}"
+          # cd ..
         else
-          echo "No marker and no default install provided for ${{ inputs.name }}"
+          echo "No marker found"
+          # eval "${{ inputs.default_install }}"
         fi
+        # elif [[ -n "${{ inputs.default_install }}" ]]; then
+        #   echo "No marker found. Running default install: ${{ inputs.default_install }}"
+        #   eval "${{ inputs.default_install }}"
+        # else
+        #   echo "No marker and no default install provided for ${{ inputs.name }}"
+        # fi
 
