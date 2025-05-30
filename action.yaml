@@ -23,26 +23,24 @@ runs:
       run: |
         sudo apt-get update && sudo apt-get install -y jq
 
-    - name: Extract PR comments
-      id: extract-comments
+    - name: Extract PR description
+      id: extract-description
       shell: bash
       run: |
         echo "PR number: ${{ github.event.pull_request.number }}"
-        echo "Fetching PR details..."
-        gh pr view ${{ github.event.pull_request.number }} --json comments
-        echo "Extracting comment bodies..."
-        comments=$(gh pr view ${{ github.event.pull_request.number }} --json comments -q ".comments[].body")
-        echo "Raw comments output: '$comments'"
-        echo "comments<<EOF" >> $GITHUB_ENV
-        echo "$comments" >> $GITHUB_ENV
+        echo "Fetching PR description..."
+        pr_body=$(gh pr view ${{ github.event.pull_request.number }} --json body -q ".body")
+        echo "PR description: '$pr_body'"
+        echo "pr_body<<EOF" >> $GITHUB_ENV
+        echo "$pr_body" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
     - name: Process ${{ inputs.name }}
       shell: bash
       run: |
-        echo "Looking for marker: ${{ inputs.marker }} in PR comments"
-        echo "Comments: $comments"
-        match=$(echo "$comments" | grep -i "${{ inputs.marker }}" | head -1 || true)
+        echo "Looking for marker: ${{ inputs.marker }} in PR description"
+        echo "PR description: $pr_body"
+        match=$(echo "$pr_body" | grep -i "${{ inputs.marker }}" | head -1 || true)
 
         if [[ -n "$match" ]]; then
           echo "Marker found: $match"
