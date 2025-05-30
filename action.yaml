@@ -14,9 +14,6 @@ inputs:
   source_install:
     description: Install command to run after checking out the PR branch
     required: true
-  token:
-    description: GitHub token for API access
-    required: true
 
 runs:
   using: "composite"
@@ -25,8 +22,6 @@ runs:
       shell: bash
       run: |
         sudo apt-get update && sudo apt-get install -y jq
-      env:
-        GH_TOKEN: ${{ inputs.token }}
 
     - name: Extract PR comments
       id: extract-comments
@@ -36,8 +31,6 @@ runs:
         echo "comments<<EOF" >> $GITHUB_ENV
         echo "$comments" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
-      env:
-        GH_TOKEN: ${{ inputs.token }}
 
     - name: Process ${{ inputs.name }}
       shell: bash
@@ -69,6 +62,4 @@ runs:
         else
           echo "No marker and no default install provided for ${{ inputs.name }}"
         fi
-      env:
-        GH_TOKEN: ${{ inputs.token }}
 
